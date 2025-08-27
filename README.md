@@ -95,6 +95,3 @@ Fill credentials via env or config, then:
 ansible-inventory -i aws_ec2.yml --graph
 ansible -i aws_ec2.yml all -m ping
 ```
-
-## License
-MIT
