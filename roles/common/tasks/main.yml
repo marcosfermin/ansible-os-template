@@ -1,0 +1,78 @@
+---
+- name: Gather facts (ensure os_family is available)
+  setup:
+
+- name: Update package cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+
+- name: Update package cache (RHEL-like)
+  dnf:
+    update_cache: yes
+  when: ansible_os_family == 'RedHat'
+
+- name: Install base packages (all distros)
+  package:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Create deploy user
+  user:
+    name: "{{ deploy_user }}"
+    state: present
+    shell: /bin/bash
+    create_home: yes
+
+- name: Authorize SSH key for deploy user
+  authorized_key:
+    user: "{{ deploy_user }}"
+    state: present
+    key: "{{ deploy_user_ssh_pubkey }}"
+  when: deploy_user_ssh_pubkey | length > 0
+
+- name: Allow passwordless sudo for deploy (optional)
+  copy:
+    dest: "/etc/sudoers.d/90-{{ deploy_user }}"
+    content: "{{ deploy_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    mode: '0440'
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+
+- name: Configure UFW (Debian/Ubuntu)
+  when: enable_firewall | bool and ansible_os_family == 'Debian'
+  block:
+    - name: Ensure UFW is installed
+      package:
+        name: ufw
+        state: present
+    - name: Allow ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop: "{{ open_ports }}"
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+- name: Configure Firewalld (RHEL-like)
+  when: enable_firewall | bool and ansible_os_family == 'RedHat'
+  block:
+    - name: Ensure firewalld is installed and running
+      package:
+        name: firewalld
+        state: present
+    - service:
+        name: firewalld
+        state: started
+        enabled: yes
+    - name: Allow services/ports
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        immediate: yes
+        state: enabled
+      loop: "{{ open_ports }}"

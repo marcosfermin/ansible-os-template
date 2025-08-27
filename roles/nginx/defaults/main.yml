@@ -1,0 +1,5 @@
+nginx_packages:
+  - nginx
+
+nginx_root: /var/www/html
+nginx_index_content: "<h1>It works (nginx)!</h1>"

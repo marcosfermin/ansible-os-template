@@ -1,0 +1,14 @@
+plugin: amazon.aws.aws_ec2
+regions: [ us-east-1 ]
+filters:
+  instance-state-name: running
+keyed_groups:
+  - key: tags.Env
+    prefix: env_
+  - key: tags.Role
+    prefix: role_
+hostnames:
+  - private-ip-address
+  - ip-address
+compose:
+  ansible_user: "'ec2-user' if platform == 'windows' else 'ubuntu'"

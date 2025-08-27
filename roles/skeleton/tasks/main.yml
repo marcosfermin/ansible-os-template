@@ -1,0 +1,4 @@
+---
+# Put your tasks here
+- debug:
+    msg: "Skeleton role executed on {{ inventory_hostname }}"

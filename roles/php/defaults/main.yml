@@ -1,0 +1,13 @@
+php_base_packages_debian:
+  - php
+  - php-cli
+  - php-mysql
+  - php-fpm
+php_base_packages_redhat:
+  - php
+  - php-cli
+  - php-mysqlnd
+  - php-fpm
+
+php_version: "{{ php_version | default('') }}"
+php_fpm_service_override: "{{ php_fpm_service_override | default('') }}"

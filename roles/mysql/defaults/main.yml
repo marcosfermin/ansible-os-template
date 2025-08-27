@@ -1,0 +1,9 @@
+mysql_server_packages_debian:
+  - mariadb-server
+mysql_server_packages_redhat:
+  - mariadb-server
+
+mysql_root_password: "{{ mysql_root_password }}"
+mysql_app_db: "{{ mysql_app_db }}"
+mysql_app_user: "{{ mysql_app_user }}"
+mysql_app_password: "{{ mysql_app_password }}"

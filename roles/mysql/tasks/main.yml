@@ -1,0 +1,56 @@
+---
+- name: Install MySQL/MariaDB server (Debian/Ubuntu)
+  package:
+    name: "{{ mysql_server_packages_debian }}"
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Install MySQL/MariaDB server (RHEL-like)
+  package:
+    name: "{{ mysql_server_packages_redhat }}"
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Ensure DB service is running
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+# Requires community.mysql and python driver installed on targets
+- name: Ensure pymysql is present for MySQL modules
+  package:
+    name: python3-pymysql
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure python3-PyMySQL on RHEL-like
+  package:
+    name: python3-PyMySQL
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Set root password (localhost) if needed
+  community.mysql.mysql_user:
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
+  ignore_errors: true
+
+- name: Create app database
+  community.mysql.mysql_db:
+    name: "{{ mysql_app_db }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: Create app user
+  community.mysql.mysql_user:
+    name: "{{ mysql_app_user }}"
+    password: "{{ mysql_app_password }}"
+    priv: "{{ mysql_app_db }}.*:ALL"
+    host: "%"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"

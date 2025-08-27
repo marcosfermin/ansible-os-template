@@ -1,0 +1,40 @@
+---
+- name: Install PHP packages (Debian/Ubuntu)
+  package:
+    name: "{{ php_base_packages_debian }}"
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Install PHP packages (RHEL-like)
+  package:
+    name: "{{ php_base_packages_redhat }}"
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Determine PHP-FPM service name (Debian-like)
+  set_fact:
+    php_fpm_service_guess: >-
+      {%- if php_fpm_service_override|length > 0 -%}
+      {{ php_fpm_service_override }}
+      {%- elif php_version|length > 0 -%}
+      php{{ php_version }}-fpm
+      {%- else -%}
+      php-fpm
+      {%- endif -%}
+  when: ansible_os_family == 'Debian'
+
+- name: Determine PHP-FPM service name (RHEL-like)
+  set_fact:
+    php_fpm_service_guess: >-
+      {%- if php_fpm_service_override|length > 0 -%}
+      {{ php_fpm_service_override }}
+      {%- else -%}
+      php-fpm
+      {%- endif -%}
+  when: ansible_os_family == 'RedHat'
+
+- name: Ensure PHP-FPM running
+  service:
+    name: "{{ php_fpm_service_guess }}"
+    state: started
+    enabled: yes

@@ -1,0 +1,18 @@
+deploy_user: deploy
+deploy_user_ssh_pubkey: ""
+
+system_timezone: Etc/UTC
+
+enable_firewall: false
+open_ports: [22, 80, 443]
+
+web_stack_enabled: false
+web_stack: nginx  # or 'apache'
+
+php_version: ""               # e.g., 8.2 (Ubuntu 22.04)
+php_fpm_service_override: ""  # e.g., php8.2-fpm
+
+mysql_root_password: "ChangeMe!"  # use Vault in real deployments
+mysql_app_db: demoapp
+mysql_app_user: demo
+mysql_app_password: "ChangeMeApp!" # use Vault in real deployments

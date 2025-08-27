@@ -1,0 +1,30 @@
+---
+- name: Install EPEL on RHEL-like (for nginx if needed)
+  package:
+    name: epel-release
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Install nginx
+  package:
+    name: "{{ nginx_packages }}"
+    state: present
+
+- name: Ensure nginx is enabled & running
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Ensure doc root exists
+  file:
+    path: "{{ nginx_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Drop index.html
+  copy:
+    dest: "{{ nginx_root }}/index.html"
+    content: "{{ nginx_index_content }}"

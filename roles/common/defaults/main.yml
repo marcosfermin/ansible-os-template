@@ -1,0 +1,8 @@
+base_packages:
+  - git
+  - curl
+  - tar
+  - python3-pip
+
+# Firewall provider detection (auto)
+firewall_provider: "{{ 'ufw' if ansible_os_family == 'Debian' else 'firewalld' }}"

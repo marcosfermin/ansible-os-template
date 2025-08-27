@@ -1,0 +1,25 @@
+---
+- name: Include OS-specific vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family }}.yml"
+      paths:
+        - "{{ role_path }}/vars"
+  tags: always
+
+- name: Install Apache
+  package:
+    name: "{{ apache_pkg }}"
+    state: present
+
+- name: Ensure Apache is enabled & running
+  service:
+    name: "{{ apache_service }}"
+    state: started
+    enabled: yes
+
+- name: Drop index.html
+  copy:
+    dest: "{{ apache_root }}/index.html"
+    content: "<h1>It works (apache)!</h1>"

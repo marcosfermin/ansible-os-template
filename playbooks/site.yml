@@ -1,0 +1,36 @@
+---
+- name: Baseline (all hosts)
+  hosts: all
+  become: true
+  roles:
+    - role: common
+
+- name: Web stack (optional)
+  hosts: web
+  become: true
+  when: web_stack_enabled | bool
+  vars:
+    web_is_nginx: "{{ web_stack == 'nginx' }}"
+    web_is_apache: "{{ web_stack == 'apache' }}"
+  tasks:
+    - name: Include nginx role when selected
+      include_role:
+        name: nginx
+      when: web_is_nginx
+
+    - name: Include apache role when selected
+      include_role:
+        name: apache
+      when: web_is_apache
+
+    - name: PHP runtime
+      include_role:
+        name: php
+
+- name: Database (optional; target hosts in [db])
+  hosts: db
+  become: true
+  tasks:
+    - name: MySQL/MariaDB
+      include_role:
+        name: mysql

@@ -1,0 +1,5 @@
+collections:
+  - name: community.general
+  - name: community.mysql
+  - name: ansible.posix
+  - name: amazon.aws
